@@ -12,7 +12,7 @@ export function ScreenshotButton ({screenshot, onScreenshotTook}:ScreenshotButto
     const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
 
     
-    async function HandleTakeScrenshot(){
+    async function handleTakeScrenshot(){
         setIsTakingScreenshot(true);
         const canvas = await html2canvas(document.querySelector('html')!);
         const base64image = canvas.toDataURL('image/png');
@@ -39,7 +39,7 @@ export function ScreenshotButton ({screenshot, onScreenshotTook}:ScreenshotButto
     return (
         <button
                 type="button"
-                onClick={HandleTakeScrenshot}
+                onClick={handleTakeScrenshot}
                 className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offiset-zinc-900 focus:ring-brand-500 transition-color"
                 >
                     { isTakingScreenshot ? <Loading /> : <Camera className="w-6 h-6"/>}

@@ -1,7 +1,9 @@
 import { ArrowLeft, Camera } from "phosphor-react";
 import { FormEvent, useState } from "react";
 import { feedbackType, feedbackTypes } from ".."
+import { api } from "../../../lib/api";
 import { CloseButton } from "../../closeButton"
+import { Loading } from "../../loading";
 import { ScreenshotButton } from "./screenshotButton";
 
 interface FeedbackContentStepProps {
@@ -10,20 +12,31 @@ interface FeedbackContentStepProps {
     onFeedbackSent: () => void;
 }
 
-export function FeedbackContentStep({feedbackType, onFeedbackRestartRequested, onFeedbackSent,}:FeedbackContentStepProps){
-    const [screenshot, setScreenshot] = useState(null);
-    const [coment, setComent] = useState("");
+export function FeedbackContentStep({feedbackType, onFeedbackRestartRequested, onFeedbackSent}:FeedbackContentStepProps){
+    const [screenshot, setScreenshot] = useState<string | null>(null);
+    const [comment, setComment] = useState("");
+    const [isSendingFeedback, setIsSendingFeedback]=useState(false);
     const feedbackTypeInfo = feedbackTypes[feedbackType];
 
-    function handleSubmitFeedback(event:FormEvent){
+    async function handleSubmitFeedback(event:FormEvent){
         event.preventDefault();
+
+        setIsSendingFeedback(true);
         console.log(
             {
                 screenshot,
-                coment,
+                comment,
             }
         )
+        await api.post('/feedbacks',{
+            type: feedbackType,
+            comment, 
+            screenshot,
+        });
+
+        setIsSendingFeedback(false);
         onFeedbackSent();
+
     }
 
     return (
@@ -46,7 +59,7 @@ export function FeedbackContentStep({feedbackType, onFeedbackRestartRequested, o
             <textarea 
              className="min-w-[304px] w-full min-h-[112px] text-sm placeholder-zinc-400 text-zinc-100 border-zinc-600 bg-transparent roudend-md focus:border-brand-500 focus:ring-brand-500 focus:ring-1 focus:outline-none resize-none scrollbar scrollbar-thumb-zinc-700 scrollbar-track-transparent scrollbar-thin"
              placeholder="Conte com detalhes o que está acontencendo..."
-             onChange={event => setComent(event.target.value)}>
+             onChange={event => setComment(event.target.value)}>
             </textarea>
 
             <footer className="flex gap-2 mt-2">
@@ -57,9 +70,9 @@ export function FeedbackContentStep({feedbackType, onFeedbackRestartRequested, o
 
                 <button
                 type="submit"
-                disabled={coment.length == 0 }
+                disabled={comment.length == 0 || isSendingFeedback}
                 className="p-2 bg-brand-500 rounded-md border-transparent flex-1 flex justify-center text-sm hover:bg-brand-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offiset-zinc-900 focus:ring-brand-500 transition-color disabled:opacity-50 disabled:hover:bg-brand-500">
-                    Enviar Feedback
+                    { isSendingFeedback ? <Loading /> :'Enviar Feedback'}
                 </button>
             </footer>
         </form> 
